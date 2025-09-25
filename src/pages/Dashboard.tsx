@@ -1,114 +1,234 @@
-import { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Input from "../components/Input";
+import { useState, useEffect } from "react";
+import {
+  BookOpen,
+  PlusCircle,
+  Bell,
+  User,
+  BarChart3,
+  Activity,
+} from "lucide-react";
 import Button from "../components/Button";
-import { BookOpen, UserPlus, Calendar } from "lucide-react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 interface Book {
-  id: number;
-  title: string;
+  id: string;
+  name: string;
   author: string;
-  year: string;
+  description: string;
 }
+
+const menuItems = [
+  { name: "Books", section: "books", icon: <BookOpen className="w-5 h-5" /> },
+  {
+    name: "Add Book",
+    section: "add-book",
+    icon: <PlusCircle className="w-5 h-5" />,
+  },
+  {
+    name: "Analytics",
+    section: "analytics",
+    icon: <BarChart3 className="w-5 h-5" />,
+  },
+  {
+    name: "Activity",
+    section: "activity",
+    icon: <Activity className="w-5 h-5" />,
+  },
+  { name: "Profile", section: "profile", icon: <User className="w-5 h-5" /> },
+];
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("books");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [books, setBooks] = useState<Book[]>([]);
   const [newBook, setNewBook] = useState<Book>({
-    id: 0,
-    title: "",
+    id: "",
+    name: "",
     author: "",
-    year: "",
+    description: "",
   });
-  const [editBookId, setEditBookId] = useState<number | null>(null);
+  const [editBookId, setEditBookId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddBook = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newBook.title || !newBook.author || !newBook.year) return;
-
-    if (editBookId !== null) {
-      setBooks(
-        books.map((book) =>
-          book.id === editBookId ? { ...newBook, id: editBookId } : book
-        )
-      );
-      setEditBookId(null);
-    } else {
-      setBooks([...books, { ...newBook, id: Date.now() }]);
-    }
-
-    setNewBook({ id: 0, title: "", author: "", year: "" });
-    setActiveSection("books");
+  // Dummy data for new sections
+  const dummyAnalytics = {
+    totalBooks: 120,
+    activeUsers: 45,
+    borrowedToday: 12,
+    overdue: 5,
   };
 
+  const dummyActivity = [
+    { id: 1, message: "John borrowed 'React Basics'", time: "2h ago" },
+    { id: 2, message: "Mary returned 'UI/UX Design Trends'", time: "5h ago" },
+    { id: 3, message: "New book added: 'Advanced Node.js'", time: "1d ago" },
+  ];
+
+  // Fetch all books from backend
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await axios.get("https://localhost:7036/api/Books");
+        setBooks(response.data);
+      } catch (error) {
+        console.error("Error fetching books:", error);
+        toast.error("Failed to load books.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBooks();
+  }, []);
+
+  // Add / Update
+  const handleAddBook = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      let response: { data: Book };
+      if (editBookId) {
+        response = await axios.put<Book>(
+          `https://localhost:7036/api/Books/${editBookId}`,
+          newBook,
+          { headers: { "Content-Type": "application/json" } }
+        );
+        setBooks(books.map((b) => (b.id === editBookId ? response.data : b)));
+        toast.success("Book updated successfully");
+      } else {
+        response = await axios.post<Book>(
+          "https://localhost:7036/api/Books",
+          newBook,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        setBooks([...books, response.data]);
+        toast.success("Book added successfully");
+      }
+      setNewBook({ id: "", name: "", author: "", description: "" });
+      setEditBookId(null);
+      setActiveSection("books");
+    } catch (error) {
+      console.error("Error saving book:", error);
+      toast.error("Failed to save book.");
+    }
+  };
+
+  // Edit
   const handleEditBook = (book: Book) => {
     setNewBook(book);
     setEditBookId(book.id);
     setActiveSection("add-book");
   };
 
-  const handleDeleteBook = (id: number) => {
-    setBooks(books.filter((book) => book.id !== id));
+  // Delete
+  const handleDeleteBook = async (id: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this book?"
+    );
+    if (!confirmDelete) return;
+    try {
+      const response = await axios.delete(
+        `https://localhost:7036/api/Books/${id}`
+      );
+      if (response.status === 200) {
+        setBooks(books.filter((b) => b.id !== id));
+        toast.success("Book deleted successfully");
+      }
+    } catch (error) {
+      console.error("Error deleting book:", error);
+      toast.error("Failed to delete book.");
+    }
   };
 
+  if (loading) return <div className="p-6">Loading books...</div>;
+
   return (
-    <div className="flex min-h-screen bg-gray-50 font-sans">
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-<Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+      <aside
+        className={`bg-white shadow-lg transition-all duration-300 ${
+          isSidebarOpen ? "w-64" : "w-20"
+        }`}
+      >
+        <div className="flex items-center justify-between px-4 py-6 border-b">
+          {isSidebarOpen && (
+            <h2 className="text-2xl font-bold text-blue-600">Library</h2>
+          )}
+          <button
+            className="text-gray-600 hover:text-blue-600"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? "<" : ">"}
+          </button>
+        </div>
 
-      {/* Main content */}
-      <div className="flex-1 p-6 md:ml-64">
-        {/* Stats Cards */}
-        {activeSection === "books" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition cursor-pointer flex flex-col items-center">
-              <BookOpen className="w-10 h-10 text-blue-600 mb-2" />
-              <h3 className="text-2xl font-bold">{books.length}</h3>
-              <p className="text-gray-500">Books</p>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition cursor-pointer flex flex-col items-center">
-              <UserPlus className="w-10 h-10 text-blue-600 mb-2" />
-              <h3 className="text-2xl font-bold">100+</h3>
-              <p className="text-gray-500">Members</p>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition cursor-pointer flex flex-col items-center">
-              <Calendar className="w-10 h-10 text-blue-600 mb-2" />
-              <h3 className="text-2xl font-bold">12</h3>
-              <p className="text-gray-500">Events</p>
-            </div>
+        <nav className="mt-6 flex flex-col gap-2 px-2">
+          {menuItems.map((item) => (
+            <button
+              key={item.section}
+              className={`flex items-center gap-3 w-full p-3 rounded-lg font-semibold transition-all ${
+                activeSection === item.section
+                  ? "bg-blue-50 text-blue-600 shadow-md"
+                  : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+              }`}
+              onClick={() => setActiveSection(item.section)}
+            >
+              {item.icon}
+              {isSidebarOpen && <span>{item.name}</span>}
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      <div className="flex-1 flex flex-col">
+        {/* Top Navbar */}
+        <header className="flex items-center justify-between bg-white shadow px-6 py-4 sticky top-0 z-20">
+          <h1 className="text-xl font-bold text-blue-600">
+            {menuItems.find((i) => i.section === activeSection)?.name}
+          </h1>
+          <div className="flex items-center gap-4">
+            <button
+              className="relative p-2 rounded-full hover:bg-gray-100"
+              title="Notifications"
+            >
+              <Bell className="w-6 h-6 text-gray-600" />
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <button className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-100">
+              <User className="w-6 h-6 text-gray-600" />
+              <span className="hidden md:inline">Admin</span>
+            </button>
           </div>
-        )}
+        </header>
 
-        {/* Books List */}
-        {activeSection === "books" && (
-          <div className="bg-white p-6 rounded-2xl shadow-md">
-            <h2 className="text-2xl font-bold mb-4 text-blue-600">Book List</h2>
-            {books.length === 0 ? (
-              <p className="text-gray-500 text-center py-10">
-                No books added yet.
-              </p>
-            ) : (
+        {/* Main */}
+        <main className="flex-1 overflow-auto p-6 space-y-6">
+          {/* Books Section */}
+          {activeSection === "books" && (
+            <div className="bg-white shadow rounded-xl overflow-hidden">
               <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-blue-50">
-                    <th className="border p-3 text-left text-gray-700">Title</th>
-                    <th className="border p-3 text-left text-gray-700">Author</th>
-                    <th className="border p-3 text-left text-gray-700">Year</th>
-                    <th className="border p-3 text-left text-gray-700">Actions</th>
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="border p-3 text-left">Title</th>
+                    <th className="border p-3 text-left">Author</th>
+                    <th className="border p-3 text-left">Description</th>
+                    <th className="border p-3 text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {books.map((book) => (
                     <tr
                       key={book.id}
-                      className="hover:bg-blue-50 transition cursor-pointer"
+                      className="hover:bg-gray-50 transition text-sm"
                     >
-                      <td className="border p-3">{book.title}</td>
+                      <td className="border p-3">{book.name}</td>
                       <td className="border p-3">{book.author}</td>
-                      <td className="border p-3">{book.year}</td>
-                      <td className="border p-3 flex gap-2">
-                        <Button
-                          className="bg-yellow-500 text-white hover:bg-yellow-600"
+                      <td className="border p-3">{book.description}</td>
+                      <td className="border p-3 justify-center items-center">
+                        <div className="flex ">
+<Button
+                          className="bg-yellow-500 text-white hover:bg-yellow-600 mr-2"
                           onClick={() => handleEditBook(book)}
                         >
                           Edit
@@ -119,53 +239,104 @@ const Dashboard = () => {
                         >
                           Delete
                         </Button>
+                        </div>
+                        
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Add/Edit Book */}
-        {activeSection === "add-book" && (
-          <div className="bg-white p-6 rounded-2xl shadow-md max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4 text-blue-600">
-              {editBookId !== null ? "Edit Book" : "Add New Book"}
-            </h2>
-            <form onSubmit={handleAddBook} className="space-y-4">
-              <Input
-                label="Title"
-                value={newBook.title}
-                onChange={(e) =>
-                  setNewBook({ ...newBook, title: e.target.value })
-                }
-                required
-              />
-              <Input
-                label="Author"
-                value={newBook.author}
-                onChange={(e) =>
-                  setNewBook({ ...newBook, author: e.target.value })
-                }
-                required
-              />
-              <Input
-                label="Year"
-                type="number"
-                value={newBook.year}
-                onChange={(e) =>
-                  setNewBook({ ...newBook, year: e.target.value })
-                }
-                required
-              />
-              <Button className="bg-blue-600 text-white hover:bg-blue-700 w-full">
-                {editBookId !== null ? "Update Book" : "Add Book"}
+          {/* Add Book */}
+          {activeSection === "add-book" && (
+            <div className="bg-white shadow rounded-xl p-6 max-w-lg mx-auto">
+              <h2 className="text-2xl font-bold mb-4">
+                {editBookId ? "Edit Book" : "Add New Book"}
+              </h2>
+              <form onSubmit={handleAddBook} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Title"
+                  value={newBook.name}
+                  onChange={(e) =>
+                    setNewBook({ ...newBook, name: e.target.value })
+                  }
+                  required
+                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Author"
+                  value={newBook.author}
+                  onChange={(e) =>
+                    setNewBook({ ...newBook, author: e.target.value })
+                  }
+                  required
+                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                />
+                <textarea
+                  placeholder="Description"
+                  value={newBook.description}
+                  onChange={(e) =>
+                    setNewBook({ ...newBook, description: e.target.value })
+                  }
+                  required
+                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                />
+                <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">
+                  {editBookId ? "Update Book" : "Add Book"}
+                </Button>
+              </form>
+            </div>
+          )}
+
+          {/* Analytics Section */}
+          {activeSection === "analytics" && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {Object.entries(dummyAnalytics).map(([key, value]) => (
+                <div
+                  key={key}
+                  className="bg-white shadow rounded-xl p-6 text-center"
+                >
+                  <p className="text-3xl font-bold text-blue-600">{value}</p>
+                  <p className="text-gray-600 capitalize">{key}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Activity Section */}
+          {activeSection === "activity" && (
+            <div className="bg-white shadow rounded-xl p-6">
+              <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
+              <ul className="space-y-3">
+                {dummyActivity.map((act) => (
+                  <li
+                    key={act.id}
+                    className="flex justify-between items-center border-b pb-2"
+                  >
+                    <span>{act.message}</span>
+                    <span className="text-gray-500 text-sm">{act.time}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Profile Section */}
+          {activeSection === "profile" && (
+            <div className="bg-white shadow rounded-xl p-6 max-w-md mx-auto text-center">
+              <User className="w-20 h-20 mx-auto text-blue-600 mb-4" />
+              <h2 className="text-2xl font-bold">Admin User</h2>
+              <p className="text-gray-600">admin@library.com</p>
+              <Button className="mt-4 bg-blue-600 text-white hover:bg-blue-700">
+                Edit Profile
               </Button>
-            </form>
-          </div>
-        )}
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
