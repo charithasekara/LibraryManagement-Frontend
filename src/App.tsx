@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Home from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
 import './App.css'
@@ -14,6 +16,7 @@ function App() {
           <Route path="/" element={<Home setIsModalOpen={setIsModalOpen} />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
+        <ToastContainer />
       </div>
     </Router>
   );
