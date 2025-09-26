@@ -8,12 +8,15 @@ interface HeaderProps {
   showAddButton?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, onAddClick, showAddButton = false }) => {
+const Header: React.FC<HeaderProps> = ({ title, onAddClick}) => {
   return (
-    <header className="flex items-center justify-between bg-white shadow px-6 py-4 sticky top-0 z-20">
+    <header className="flex items-center justify-between bg-white px-6 py-4 sticky top-0 z-20 rounded-4xl">
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-bold text-blue-600">{title}</h1>
-        {showAddButton && (
+        <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
+        
+      </div>
+      <div className="flex items-center gap-4">
+        
           <Button
             className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
             onClick={onAddClick}
@@ -21,9 +24,7 @@ const Header: React.FC<HeaderProps> = ({ title, onAddClick, showAddButton = fals
             <PlusCircle className="w-5 h-5" />
             Add Book
           </Button>
-        )}
-      </div>
-      <div className="flex items-center gap-4">
+        
         <button
           className="relative p-2 rounded-full hover:bg-gray-100"
           title="Notifications"

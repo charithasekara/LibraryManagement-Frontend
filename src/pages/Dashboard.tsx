@@ -142,7 +142,7 @@ const Dashboard = () => {
         setIsSidebarOpen={setIsSidebarOpen}
       />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col m-8 border border-gray-200 rounded-4xl bg-white p-4">
         <Header 
           title={menuItems.find((i) => i.section === activeSection)?.name || ''} 
           showAddButton={activeSection === "books"}
