@@ -123,7 +123,7 @@ const HomePage: React.FC<HomePageProps> = ({ setIsModalOpen }) => {
             <input
               type="text"
               placeholder="Search books by title or author..."
-              className="w-full px-6 py-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-6 py-4 text-gray-800 focus:outline-none "
             />
             <button className="bg-blue-600 text-white hover:bg-blue-700 px-10 py-4 font-semibold rounded-full">
               Search
