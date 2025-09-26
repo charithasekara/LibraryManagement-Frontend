@@ -398,7 +398,8 @@ const HomePage: React.FC<HomePageProps> = ({ setIsModalOpen }) => {
       {/* Modal */}
       <Modal
         isOpen={modalBookId !== null}
-        setIsOpen={() => setModalBookId(null)}
+        onClose={() => setModalBookId(null)}
+        title={modalBook ? modalBook.title : "Book Details"}
       >
         {modalBook && (
           <div className="p-8 relative" ref={modalRef}>
