@@ -8,8 +8,10 @@ import BooksSection from "./dashboard/BooksSection";
 import AnalyticsSection from "./dashboard/AnalyticsSection";
 import ActivitySection from "./dashboard/ActivitySection";
 import ProfileSection from "./dashboard/ProfileSection";
+import AddBookSection from "./dashboard/AddBookSection";
 import type { Book } from "../types/Book";
-import { BookOpen, BarChart3, Activity, User } from "lucide-react";
+import { BookOpen, BarChart3, Activity, User, Trash2 } from "lucide-react";
+import Button from "../components/Button";
 
 
 export const menuItems = [
@@ -40,6 +42,8 @@ const Dashboard = () => {
   const [editBookId, setEditBookId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<string | null>(null);
 
   // Dummy data for new sections
   const dummyAnalytics = {
@@ -103,17 +107,22 @@ const Dashboard = () => {
 
   // Delete
   const handleDeleteBook = async (id: string) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this book?"
-    );
-    if (!confirmDelete) return;
+    setBookToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!bookToDelete) return;
+    
     try {
       const response = await axios.delete(
-        `https://localhost:7036/api/Books/${id}`
+        `https://localhost:7036/api/Books/${bookToDelete}`
       );
       if (response.status === 200) {
-        setBooks(books.filter((b) => b.id !== id));
+        setBooks(books.filter((b) => b.id !== bookToDelete));
         toast.success("Book deleted successfully");
+        setIsDeleteModalOpen(false);
+        setBookToDelete(null);
       }
     } catch (error) {
       console.error("Error deleting book:", error);
@@ -178,34 +187,54 @@ const Dashboard = () => {
         <Modal
           isOpen={isBookModalOpen}
           onClose={handleCloseModal}
-          title={editBookId ? "Edit Book" : "Add New Book"}
           onSubmit={handleAddBook}
-          submitText={editBookId ? "Update Book" : "Add Book"}
+          title=""
         >
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Title"
-              value={newBook.name}
-              onChange={(e) => setNewBook({ ...newBook, name: e.target.value })}
-              required
-              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              placeholder="Author"
-              value={newBook.author}
-              onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
-              required
-              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500"
-            />
-            <textarea
-              placeholder="Description"
-              value={newBook.description}
-              onChange={(e) => setNewBook({ ...newBook, description: e.target.value })}
-              required
-              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500"
-            />
+          <AddBookSection
+            book={newBook}
+            isEditing={!!editBookId}
+            onSubmit={handleAddBook}
+            onChange={setNewBook}
+          />
+        </Modal>
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setBookToDelete(null);
+          }}
+          onSubmit={confirmDelete}
+          title=""
+        >
+          <div className="text-center space-y-4 px-6 py-4">
+            <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-4">
+              <Trash2 className="h-6 w-6 text-red-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Confirm Deletion
+            </h3>
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete this book? This action cannot be undone.
+            </p>
+            <div className="flex justify-center gap-3 mt-6">
+              <Button
+                className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setBookToDelete(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="px-4 py-2 bg-red-600 text-white hover:bg-red-700"
+                onClick={confirmDelete}
+              >
+                Delete Book
+              </Button>
+            </div>
           </div>
         </Modal>
       </div>
