@@ -1,69 +1,115 @@
-# React + TypeScript + Vite
+# 📚 Library Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive library management system built with React and TypeScript, featuring an intuitive dashboard for efficient book management.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 📊 Dashboard Overview
+- Modern, clean interface with responsive design
+- Sidebar navigation for easy access to different sections
+- Real-time notifications for all actions
 
-## Expanding the ESLint configuration
+### 📚 Book Management
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Add/Edit Books**:
+  - User-friendly modal interface
+  - Form validation
+  - Interactive input fields with icons
+  - Smooth transitions and animations
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Delete Books**:
+  - Confirmation modal
+  - Safe deletion process
+  - Visual feedback
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🛠️ Technology Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Frontend Framework**: React with TypeScript
+- **Styling**: TailwindCSS for modern, responsive design
+- **Icons**: Lucide React icons
+- **State Management**: React Hooks
+- **HTTP Client**: Axios
+- **Notifications**: React Toastify
+- **Build Tool**: Vite
+
+## 📦 Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── Button.tsx
+│   ├── Header.tsx
+│   ├── Modal.tsx
+│   ├── Navbar.tsx
+│   └── Sidebar.tsx
+├── pages/              # Main application pages
+│   ├── Dashboard.tsx   # Main dashboard
+│   └── dashboard/      # Dashboard sections
+│       ├── AddBookSection.tsx
+│       ├── BooksSection.tsx
+│       ├── AnalyticsSection.tsx
+│       └── ActivitySection.tsx
+├── types/             # TypeScript type definitions
+└── assets/           # Static assets and images
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
+- Git
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/charithasekara/LibraryManagement-Frontend.git
 ```
+
+2. Navigate to project directory:
+```bash
+cd LibraryManagement-Frontend
+```
+
+3. Install dependencies:
+```bash
+npm install
+```
+
+4. Start the development server:
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5173`
+
+## 🎯 Key Features Walkthrough
+
+### Book Management
+- **Search**: Real-time search across title, author, and description
+- **Filters**: Quick access filters for book categories
+- **CRUD Operations**:
+  - Add new books with detailed information
+  - Edit existing book details
+  - Delete books with confirmation
+
+### User Interface
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Interactive Elements**: Hover states, transitions, and animations
+- **Accessibility**: ARIA labels and semantic HTML
+- **Error Handling**: Clear error messages and validations
+
+## 🔧 Configuration
+
+The application connects to a backend API at `https://localhost:7036`. Update the API URL in the appropriate configuration files if needed.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 👏 Acknowledgments
+
+- React Team for the amazing framework
+- TailwindCSS for the utility-first CSS framework
+- Lucide for the beautiful icons
