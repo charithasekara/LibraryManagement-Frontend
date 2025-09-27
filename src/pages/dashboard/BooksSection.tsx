@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { Search, Pencil, Trash2 } from 'lucide-react';
 import Button from '../../components/Button';
+import TableSkeleton from '../../components/TableSkeleton';
 import type { Book } from '../../types/Book';
 
 interface BooksSectionProps {
   books: Book[];
   onEditBook: (book: Book) => void;
   onDeleteBook: (id: string) => void;
+  isLoading?: boolean;
 }
 
-const BooksSection: React.FC<BooksSectionProps> = ({ books, onEditBook, onDeleteBook }) => {
+const BooksSection: React.FC<BooksSectionProps> = ({ 
+  books, 
+  onEditBook, 
+  onDeleteBook,
+  isLoading = false 
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
 
@@ -67,19 +74,22 @@ const BooksSection: React.FC<BooksSectionProps> = ({ books, onEditBook, onDelete
       </div>
 
       {/* Books Table */}
-      <div className="bg-white shadow rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Title</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Author</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Description</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredBooks.map((book) => (
+      {isLoading ? (
+        <TableSkeleton />
+      ) : (
+        <div className="bg-white shadow rounded-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Title</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Author</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Description</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredBooks.map((book) => (
                 <tr key={book.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                     {book.name}
@@ -119,6 +129,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ books, onEditBook, onDelete
           </div>
         )}
       </div>
+      )}
     </div>
   );
 };

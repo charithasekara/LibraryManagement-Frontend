@@ -140,7 +140,7 @@ const Dashboard = () => {
     setIsBookModalOpen(true);
   };
 
-  if (loading) return <div className="p-6">Loading books...</div>;
+
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -169,6 +169,7 @@ const Dashboard = () => {
                 setIsBookModalOpen(true);
               }}
               onDeleteBook={handleDeleteBook}
+              isLoading={loading}
             />
           )}
 
